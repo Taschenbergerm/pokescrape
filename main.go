@@ -1,13 +1,7 @@
 package main
 
-import (
-	
-	"github.com/taschenbergerm/pokescraper/cmd"
-)
+import "github.com/taschenbergerm/pokescraper/pkg"
 
 func main() {
-
-    
-    cmd.Execute()
-	
+	pkg.Scrape()
 }
