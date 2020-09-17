@@ -5,30 +5,35 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/taschenbergerm/pokescraper/config"
 	"github.com/taschenbergerm/pokescraper/log"
 )
 
-type responseData struct {
-	RegionName     string         `json:"name"`
-	PokemonEntries []PokemonEntry `json:"pokemon_entries"`
+// Main will start the scrape loop of the region and then for each pokemon
+func Main() {
+	log.Info("Start Main")
+	entries := ScrapeRegion()
+	log.Infof("Scraped for %v entries", len(entries))
+	pokemonChannel := make(chan PokemonEntry)
+	quit := make(chan bool)
+	go InsertPokemonLink(pokemonChannel, quit)
+	for i, entry := range entries {
+		log.Infof("Loop over entry nr. %v - %v",
+
+			i,
+			entry.PokemonSpecies.Name)
+
+		p := ScrapePokemon(entry)
+		log.Infof("Found %v ", p.Name)
+		pokemonChannel <- entry
+
+	}
+	quit <- true
+	log.Info("Shutting Down")
 }
 
-type PokemonEntry struct {
-	EntryNumber    int        `json:"entry_number"`
-	PokemonSpecies PokemonRef `json:"pokemon_species"`
-}
-
-type PokemonRef struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
-}
-
-// Scrape the website once
-func Scrape() {
-	log.Info("Scraper is going to start")
-	Config := config.Config()
-	log.Info(Config.GetString("KICKER"))
+// ScrapeRegion will call the PokeApi to retrieve the list of Pokemons from the webiste
+func ScrapeRegion() []PokemonEntry {
+	log.Infoln("Scraper is going to start")
 	url := "https://pokeapi.co/api/v2/pokedex/kanto/"
 
 	resp, err := http.Get(url)
@@ -40,6 +45,25 @@ func Scrape() {
 	var responseObject responseData
 	json.Unmarshal(response, &responseObject)
 
-	log.Info(responseObject.RegionName)
-	log.Info(responseObject.PokemonEntries[0].PokemonSpecies.Name)
+	log.Infoln(responseObject.RegionName)
+	log.Infoln(responseObject.PokemonEntries[0].PokemonSpecies.Name)
+	return responseObject.PokemonEntries
+}
+
+// ScrapePokemon retrieves all the individual Facts from the Pokemon via the API
+func ScrapePokemon(pokemon PokemonEntry) Pokemon {
+	log.Infof("Start Scraping for %s", pokemon.PokemonSpecies.Name)
+	resp, err := http.Get(pokemon.PokemonSpecies.URL)
+	HandleErrorSoftly(err)
+
+	response, err := ioutil.ReadAll(resp.Body)
+	HandleErrorSoftly(err)
+
+	var PokemonInstance Pokemon
+	json.Unmarshal(response, &PokemonInstance)
+	log.Infof("Scraper %s  with a BaseHappines of %s and GrowthRate of %s",
+		PokemonInstance.Name,
+		PokemonInstance.BaseHappiness,
+		PokemonInstance.GrowthRate.Name)
+	return PokemonInstance
 }

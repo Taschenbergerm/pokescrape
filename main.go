@@ -1,7 +1,12 @@
 package main
 
-import "github.com/taschenbergerm/pokescraper/pkg"
+import (
+	"github.com/taschenbergerm/pokescraper/log"
+	"github.com/taschenbergerm/pokescraper/pkg"
+)
 
 func main() {
-	pkg.Scrape()
+	log.Info("Starting Main.go")
+	pkg.Main()
+	log.Info("End Main.go")
 }
