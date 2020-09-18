@@ -6,35 +6,36 @@ import (
 	"net/http"
 
 	"github.com/taschenbergerm/pokescraper/log"
+	"github.com/taschenbergerm/pokescraper/config"
 )
 
 // Main will start the scrape loop of the region and then for each pokemon
 func Main() {
 	log.Info("Start Main")
-	entries := ScrapeRegion()
+	config :=config.Config()
+	entries := ScrapeRegion(config.GetString("api_url"))
 	log.Infof("Scraped for %v entries", len(entries))
-	pokemonChannel := make(chan PokemonEntry)
+	pokemonRefChannel := make(chan PokemonEntry)
+	pokemonChannel := make(chan Pokemon)
 	quit := make(chan bool)
-	go InsertPokemonLink(pokemonChannel, quit)
+	go InsertPokemonLink(pokemonRefChannel,pokemonChannel, quit)
 	for i, entry := range entries {
 		log.Infof("Loop over entry nr. %v - %v",
 
 			i,
 			entry.PokemonSpecies.Name)
-
+		pokemonRefChannel <- entry
 		p := ScrapePokemon(entry)
 		log.Infof("Found %v ", p.Name)
-		pokemonChannel <- entry
-
+		pokemonChannel <- p
 	}
 	quit <- true
 	log.Info("Shutting Down")
 }
 
 // ScrapeRegion will call the PokeApi to retrieve the list of Pokemons from the webiste
-func ScrapeRegion() []PokemonEntry {
+func ScrapeRegion(url string) []PokemonEntry {
 	log.Infoln("Scraper is going to start")
-	url := "https://pokeapi.co/api/v2/pokedex/kanto/"
 
 	resp, err := http.Get(url)
 	HandleErrorStrictly(err)

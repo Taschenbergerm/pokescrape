@@ -19,19 +19,16 @@ type Ref struct {
 
 // Pokemon Structure from the Json of the API
 type Pokemon struct {
-	Name          string `json:"name"`
-	ID            int    `json:"id"`
-	BaseHappiness int    `json:"base_happines"`
-	CaptureRate   int    `json:"capture_rate"`
-	Color         struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"color"`
-	EggGroups           []Ref `json:"egg_groups"`
-	EvolvesFrom         Ref   `json:"evolves_from_species"`
-	GenderRate          int   `json:"gender_rate"`
-	Generation          Ref   `json:"generation"`
-	GrowthRate          Ref   `json:"growth_rate"`
-	HasGenderDifference bool  `json:"has_gender_differences"`
-	HatchCounter        int   `json:"hatch_counter"`
+	Name                string `json:"name"`
+	ID                  int    `json:"id"`
+	BaseHappiness       int    `json:"base_happines"`
+	CaptureRate         int    `json:"capture_rate"`
+	Color               Ref    `json:"color"`
+	EggGroups           []Ref  `json:"egg_groups"`
+	EvolvesFrom         Ref    `json:"evolves_from_species"`
+	GenderRate          int    `json:"gender_rate"`
+	Generation          Ref    `json:"generation"`
+	GrowthRate          Ref    `json:"growth_rate"`
+	HasGenderDifference bool   `json:"has_gender_differences"`
+	HatchCounter        int    `json:"hatch_counter"`
 }
