@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"database/sql"
+	"io/ioutil"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/taschenbergerm/pokescraper/log"
@@ -19,15 +21,10 @@ func InsertPokemonLink(pokeRefChannel chan PokemonEntry,pokeChannel chan Pokemon
 	err = db.Ping()
 	log.Debug("DB Connected")
 
-	pokeRefStmt, err := db.Prepare("REPLACE INTO pokemon_references (name, url) VALUES(?,?)")
-	HandleErrorStrictly(err)
+	pokeRefStmt := prepareStatementFromFile("assets/insert_pokemon_ref.sql", db)
 	defer pokeRefStmt.Close()
 
-	pokeStmt, err := db.Prepare("REPLACE INTO pokemon"+
-	"(`id`,`Name`,`BaseHappiness`,`CaptureRate`,`Color`,`EvolvesFrom`,"+
-	"`GenderRate`,`Generation`,`GrowthRate`,`HasGenderDifference`,"+
-	"`HatchCounter`) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
-	HandleErrorStrictly(err)
+	pokeStmt := prepareStatementFromFile("assets/insert_pokemon.sql", db) 
 	defer pokeStmt.Close()
 	log.Debug("Statement Prepared")
 
@@ -62,6 +59,18 @@ func InsertPokemonLink(pokeRefChannel chan PokemonEntry,pokeChannel chan Pokemon
 	}
 }
 
+func prepareStatementFromFile(path string,db *sql.DB) *sql.Stmt{
+	dir, err := os.Getwd()
+	HandleErrorSoftly(err)
+	log.Debugf("Looking relativly from %v",dir )
+	file ,err := os.Open(path)
+	HandleErrorSoftly(err)
+	content, err := ioutil.ReadAll(file)
+	HandleErrorSoftly(err)
+	stmt, err := db.Prepare(string(content))
+	HandleErrorSoftly(err)
+	return stmt
+}
 
 func printAffected(rowProxy sql.Result){
 	affected, err := rowProxy.RowsAffected()

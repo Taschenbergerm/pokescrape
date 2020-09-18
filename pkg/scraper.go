@@ -62,7 +62,7 @@ func ScrapePokemon(pokemon PokemonEntry) Pokemon {
 
 	var PokemonInstance Pokemon
 	json.Unmarshal(response, &PokemonInstance)
-	log.Infof("Scraper %s  with a BaseHappines of %s and GrowthRate of %s",
+	log.Infof("Scraper %s  with a BaseHappines of %i and GrowthRate of %s",
 		PokemonInstance.Name,
 		PokemonInstance.BaseHappiness,
 		PokemonInstance.GrowthRate.Name)
