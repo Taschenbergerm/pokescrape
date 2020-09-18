@@ -52,6 +52,7 @@ func readViperConfig(appName string) *viper.Viper {
 	
 	v.SetDefault("json_logs", false)
 	v.SetDefault("loglevel", "debug")
+	v.SetDefault("api_url", "https://pokeapi.co/api/v2/pokedex/kanto/")
 	
 
 	return v
