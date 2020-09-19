@@ -32,3 +32,16 @@ type Pokemon struct {
 	HasGenderDifference bool   `json:"has_gender_differences"`
 	HatchCounter        int    `json:"hatch_counter"`
 }
+
+
+// InitDBArgs is a struct to hold the values from the command-line-interface 
+type InitDBArgs struct{
+	User string 
+	Password string
+	Host string 
+	Port int 
+	MySQL bool
+	SQLite bool 
+	URI string
+	Dialect string 
+}

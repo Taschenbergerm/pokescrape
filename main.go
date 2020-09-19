@@ -1,12 +1,9 @@
 package main
 
 import (
-	"github.com/taschenbergerm/pokescraper/log"
-	"github.com/taschenbergerm/pokescraper/pkg"
+  "github.com/taschenbergerm/pokescraper/cmd"
 )
 
 func main() {
-	log.Info("Starting Main.go")
-	pkg.Main()
-	log.Info("End Main.go")
+  cmd.Execute()
 }

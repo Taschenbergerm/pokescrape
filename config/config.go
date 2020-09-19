@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"time"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -40,20 +42,42 @@ func LoadConfigProvider(appName string) Provider {
 }
 
 func init() {
-	defaultConfig = readViperConfig("POKESCRAPER")
+	defaultConfig = readViperConfig("pokescraper")
 }
 
 func readViperConfig(appName string) *viper.Viper {
+	var err error
+	/*home, err := os.UserHomeDir()
+	if err != nil { 
+		log.Fatal("Warning no home dir found")
+	}
+	projectFolder := fmt.Sprintf("%s/.%s/",home, appName)
+	*/
+	projectFolder := "/home/marvin/Projects/Privat/pokescraper/"
+	configFile := "config.yml"
 	v := viper.New()
-	v.SetEnvPrefix(appName)
+	v.SetConfigName(configFile) // name of config file (without extension)
+	v.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
+	v.AddConfigPath(projectFolder)  // call multiple times to add many search paths
+	err = v.ReadInConfig() // Find and read the config file
+	if err != nil { 
+		fmt.Println("Warning no config file found")
+	}
+	v.SetEnvPrefix(strings.ToUpper(appName))
 	v.AutomaticEnv()
+	
 
 	// global defaults
 	
 	v.SetDefault("json_logs", false)
 	v.SetDefault("loglevel", "debug")
 	v.SetDefault("api_url", "https://pokeapi.co/api/v2/pokedex/kanto/")
-	
-
+	v.SetDefault("root", projectFolder)
+	v.SetDefault("sqlite_db", projectFolder + ".db")
+	v.SetDefault("config_folder", projectFolder)
+	v.SetDefault("config_file", configFile)
+	v.SetDefault("config_path", projectFolder+configFile)
+	v.SetDefault("asset_folder", projectFolder+"assets/")
+	v.SetDefault("configured", false)
 	return v
 }
